@@ -249,7 +249,7 @@ public class ScreenCaptureService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Bit-Aim Auto-Detect Running")
                 .setContentText("Detecting board size, striker, coins and pockets")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
