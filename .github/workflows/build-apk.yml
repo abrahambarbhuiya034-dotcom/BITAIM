@@ -29,6 +29,25 @@ jobs:
       - name: Install JS dependencies
         run: npm install --legacy-peer-deps
 
+      # Install Gradle 8.0.1 and use it to regenerate the wrapper JAR in place
+      - name: Install Gradle and generate wrapper JAR
+        run: |
+          curl -fL "https://services.gradle.org/distributions/gradle-8.0.1-bin.zip" \
+            -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp/gradle_dist
+          /tmp/gradle_dist/gradle-8.0.1/bin/gradle wrapper \
+            --gradle-version 8.0.1 \
+            --project-dir android
+          ls -lh android/gradle/wrapper/gradle-wrapper.jar
+
+      # ubuntu-latest already has the Android SDK — just install missing components
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;33.0.0" \
+            "ndk;23.1.7779620" 2>&1 | grep -v "^\[=" | tail -5
+
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -42,9 +61,7 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build debug APK
-        run: |
-          cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
         env:
           ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
@@ -55,7 +72,5 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      - name: Show APK info
-        run: |
-          APK=android/app/build/outputs/apk/debug/app-debug.apk
-          ls -lh "$APK" && echo "APK ready to download from Artifacts above"
+      - name: Show APK size
+        run: ls -lh android/app/build/outputs/apk/debug/app-debug.apk
