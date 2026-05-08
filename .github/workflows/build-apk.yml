@@ -25,21 +25,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
 
       - name: Install JS dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Cache Gradle packages
+      - name: Cache Gradle
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
       - name: Make gradlew executable
@@ -50,7 +46,7 @@ jobs:
           cd android
           ./gradlew assembleDebug --no-daemon --stacktrace
         env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -62,10 +58,4 @@ jobs:
       - name: Show APK info
         run: |
           APK=android/app/build/outputs/apk/debug/app-debug.apk
-          if [ -f "$APK" ]; then
-            echo "APK built successfully"
-            ls -lh "$APK"
-          else
-            echo "APK not found"
-            exit 1
-          fi
+          ls -lh "$APK" && echo "APK ready to download from Artifacts above"
