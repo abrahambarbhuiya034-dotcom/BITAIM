@@ -38,10 +38,14 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, false);
-        if (!OpenCVLoader.initDebug()) {
-            Log.e(TAG, "OpenCV init failed — auto-detect will not work");
-        } else {
-            Log.i(TAG, "OpenCV initialised");
+        try {
+            if (!OpenCVLoader.initDebug()) {
+                Log.e(TAG, "OpenCV init failed — auto-detect will not work");
+            } else {
+                Log.i(TAG, "OpenCV initialised");
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "OpenCV load error (non-fatal): " + t.getMessage());
         }
     }
 }
