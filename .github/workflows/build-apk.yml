@@ -15,10 +15,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up JDK 11
+      # React Native 0.72 + sdkmanager both need JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Set up Node.js 18
@@ -29,8 +30,8 @@ jobs:
       - name: Install JS dependencies
         run: npm install --legacy-peer-deps
 
-      # Install Gradle 8.0.1 and use it to regenerate the wrapper JAR in place
-      - name: Install Gradle and generate wrapper JAR
+      # Install Gradle 8.0.1 and regenerate the wrapper JAR (not committed to repo)
+      - name: Generate Gradle wrapper JAR
         run: |
           curl -fL "https://services.gradle.org/distributions/gradle-8.0.1-bin.zip" \
             -o /tmp/gradle.zip
@@ -38,9 +39,13 @@ jobs:
           /tmp/gradle_dist/gradle-8.0.1/bin/gradle wrapper \
             --gradle-version 8.0.1 \
             --project-dir android
-          ls -lh android/gradle/wrapper/gradle-wrapper.jar
+          echo "Wrapper JAR: $(ls -lh android/gradle/wrapper/gradle-wrapper.jar)"
 
-      # ubuntu-latest already has the Android SDK — just install missing components
+      # Write the correct SDK path — single source of truth for Gradle
+      - name: Write android/local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+
+      # Install only components that ubuntu-latest doesn't ship with
       - name: Install Android SDK components
         run: |
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
@@ -62,8 +67,6 @@ jobs:
 
       - name: Build debug APK
         run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
