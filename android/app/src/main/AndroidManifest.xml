@@ -18,6 +18,7 @@
         android:name=".MainApplication"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher_foreground"
+        android:roundIcon="@drawable/ic_launcher_foreground"
         android:allowBackup="true"
         android:theme="@style/AppTheme">
 
@@ -46,12 +47,7 @@
         <!-- Floating overlay foreground service -->
         <service
             android:name=".overlay.FloatingOverlayService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="aim_overlay" />
-        </service>
+            android:exported="false" />
 
         <!-- Screen capture foreground service -->
         <service
