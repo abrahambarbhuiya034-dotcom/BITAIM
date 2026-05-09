@@ -144,7 +144,7 @@ public class FloatingOverlayService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Bit-Aim Running")
                 .setContentText("Tap floating icon to toggle aim lines")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(openPi)
                 .addAction(0, "Stop", stopPi)
                 .setOngoing(true)
